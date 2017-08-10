@@ -1,5 +1,5 @@
+import './AboutPage.scss'
 import React from 'react'
-import classes from './AboutPage.scss'
 import Showdown from 'showdown'
 
 
@@ -21,17 +21,17 @@ const whatAboutTheSite =
 class AboutView extends React.Component {
   render() {
     return (
-      <article className={classes.container}>
+      <article className='about-page-container'>
         <main>
-          <section>
-            <h3 className={classes.title}>Me</h3>
-            <p className={classes.main}
+          <section className='page-section'>
+            <h3 className='section-title'>Me</h3>
+            <p className='section-main'
                dangerouslySetInnerHTML={{ __html: converter.makeHtml(whoAmI) }}>
             </p>
           </section>
-          <section>
-            <h3 className={classes.title}>The Site</h3>
-            <p className={classes.main}
+          <section className='page-section'>
+            <h3 className='section-title'>The Site</h3>
+            <p className='section-main'
                dangerouslySetInnerHTML={{ __html: converter.makeHtml(whatAboutTheSite) }}>
             </p>
           </section>

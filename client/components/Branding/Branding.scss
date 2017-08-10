@@ -2,12 +2,12 @@
 @import "../../styles/breakdown";
 
 
-.container {
+.branding-container {
   height: 5rem;
   display: flex;
   align-items: center;
 
-  .text {
+  .branding-text {
     display: inline-block;
     font: 3.2rem/1.5 "Audiowide", sans-serif, serif;
     vertical-align: middle;
@@ -26,7 +26,7 @@
     }
   }
 
-  .logo {
+  .branding-logo {
     width: 4.2rem;
     border-radius: 5px;
   }

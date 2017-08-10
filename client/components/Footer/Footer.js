@@ -1,15 +1,16 @@
+import './Footer.scss'
 import React from 'react'
-import classes from './Footer.scss'
+
 
 const Footer = () => (
-  <footer className={classes.container}>
-    <div className={classes.topLayer}>
+  <footer className='footer-container' >
+    <div className='footer-top' >
       All Rights Reserved ©2016 Chen Fang
     </div>
-    <div className={classes.bottomLayer}>
-      <a href='/rss.xml' className={classes.link}>
+    <div className='footer-bottom'>
+      <a href='/rss.xml' className='footer-link' >
         Follow Rss&nbsp;
-        <i className='fa fa-rss' aria-hidden='true'></i>
+        <i className='fa fa-rss' aria-hidden='true' ></i>
       </a>
     </div>
   </footer>

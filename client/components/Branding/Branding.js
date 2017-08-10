@@ -1,17 +1,17 @@
+import './Branding.scss'
 import React from 'react'
 import { Link } from 'react-router-dom'
 import headshotImg from '../../statics/img/me/cartoon_headshot.png'
-import classes from './Branding.scss'
 
 
 const Branding = ({ title, subtitle }) => {
   return (
-    <Link to='/about' className={classes.container}>
-      <div className={classes.text}>
-        <span className={classes.title}>{title}</span>&nbsp;
-        <span className={classes.subtitle}>{subtitle}</span>
+    <Link to='/about' className='branding-container' >
+      <div className='branding-text' >
+        <span className='branding-title' >{title}</span>&nbsp;
+        <span className='branding-subtitle' >{subtitle}</span>
       </div>
-      <img className={classes.logo} src={headshotImg} />
+      <img className='branding-logo' src={headshotImg} />
     </Link>
   )
 }

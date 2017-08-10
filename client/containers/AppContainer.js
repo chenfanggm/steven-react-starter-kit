@@ -1,13 +1,9 @@
+import '../styles/main.scss'
 import React from 'react'
 import { BrowserRouter } from 'react-router-dom'
 
 
 class AppContainer extends React.Component {
-
-  shouldComponentUpdate() {
-    return false
-  }
-
   render() {
     const { routes } = this.props
 

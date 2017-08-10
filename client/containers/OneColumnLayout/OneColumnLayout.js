@@ -1,9 +1,8 @@
-import '../../styles/main.scss'
+import './OneColumnLayout.scss'
 import React from 'react'
-import { reportPageView } from '../../utils/analytics'
-import classes from './OneColumnLayout.scss'
 import Navbar from '../../components/Navbar'
 import Footer from '../../components/Footer'
+import { reportPageView } from '../../utils/analytics'
 
 
 class OneColumnLayout extends React.Component {
@@ -27,17 +26,17 @@ class OneColumnLayout extends React.Component {
     const { children } = this.props
 
     return (
-      <div className={classes.container}>
+      <div className='layout-container' >
         <Navbar />
-        <div className={classes.page}>
-          <main className={classes.main}>
+        <div className='layout-page' >
+          <main className='page-main' >
             {children}
           </main>
         </div>
-        <div className={classes.bottom}>
+        <div className='layout-bottom' >
           <Footer />
         </div>
-        <div className={classes.hiddenLayer}>
+        <div className='layout-hidden' >
         </div>
       </div>
     )

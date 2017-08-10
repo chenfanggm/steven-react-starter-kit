@@ -13,7 +13,7 @@ const __TEST__ = config.compilerGlobals.__TEST__
 debug('Init webpack config.')
 const mainEntry = [paths.client('main')]
 if (__DEV__) {
-  mainEntry.push(`webpack-hot-middleware/client.js?path=${config.compilerPublicPath}__webpack_hmr`)
+  mainEntry.push(`webpack-hot-middleware/client.js?path=${config.compilerPublicPath}__webpack_hmr&reload=true`)
 }
 const webpackConfig = {
   entry: {
@@ -68,22 +68,15 @@ webpackConfig.module.rules.push({
         }]
       ],
       plugins: [
-        'lodash',
+        ["lodash", { "id": ["lodash", "semantic-ui-react"] }],
         //'babel-plugin-syntax-dynamic-import',
         'babel-plugin-transform-class-properties',
-        [
-          'babel-plugin-transform-runtime',
-          {
-            polyfill: false // only polyfill needed features in client/normalize.js
-          }
-        ],
-        [
-          'babel-plugin-transform-object-rest-spread',
-          {
-            useBuiltIns: true // polyfill Object.assign in client/normalize.js
-          }
-        ],
-        ['import', [{ libraryName: 'antd', style: "css" }]]
+        ['babel-plugin-transform-runtime', {
+          polyfill: false // only polyfill needed features in client/normalize.js
+        }],
+        ['babel-plugin-transform-object-rest-spread', {
+          useBuiltIns: true // polyfill Object.assign in client/normalize.js
+        }]
       ]
     }
   }]

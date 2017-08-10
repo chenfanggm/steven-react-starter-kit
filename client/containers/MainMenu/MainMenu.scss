@@ -1,16 +1,16 @@
 @import "../../styles/constants";
 
-.container {
+.menu-container {
   height: 5rem;
   display: flex;
   align-items: center;
   font: 1.7rem/1.5 "Open-Sans-Semibold", sans-serif;
   color: $text-color-secondary;
 
-  .dropdownContainer {
+  .dropdown-container {
     position: relative;
 
-    .dropdownMenu {
+    .dropdown-menu {
       width: 17rem;
       margin-left: -10rem;
     }

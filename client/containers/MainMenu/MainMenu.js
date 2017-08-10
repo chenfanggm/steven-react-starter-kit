@@ -1,5 +1,5 @@
+import './MainMenu.scss'
 import React from 'react'
-import classes from './MainMenu.scss'
 
 
 class MainMenu extends React.Component {
@@ -14,9 +14,8 @@ class MainMenu extends React.Component {
 
   render() {
     return (
-      <nav className={classes.container}>
-        <div id='dropdownContainer'
-             className={classes.dropdownContainer}>
+      <nav className='menu-container'>
+        <div className='dropdown-container'>
         </div>
       </nav>
     )

@@ -20,16 +20,13 @@ let render = () => {
 // Development Tools
 if (__DEV__) {
   if (module.hot) {
-    const renderApp = render
     const renderError = (error) => {
       const RedBox = require('redbox-react').default
-      ReactDOM.render(
-        <RedBox error={error} />,
-        MOUNT_NODE
-      )
+      ReactDOM.render(<RedBox error={error} />, MOUNT_NODE)
     }
 
     // Wrap render in try/catch
+    const renderApp = render
     render = () => {
       try {
         renderApp()
@@ -40,7 +37,7 @@ if (__DEV__) {
     }
 
     // Setup hot module replacement
-    module.hot.accept('./routes', () =>
+    module.hot.accept('./containers/AppContainer', () =>
       setImmediate(() => {
         ReactDOM.unmountComponentAtNode(MOUNT_NODE)
         render()
