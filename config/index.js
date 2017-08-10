@@ -48,10 +48,7 @@ const config = {
   compilerQuiet: false,
   compilerVendors: [
     'react',
-    'react-redux',
     'react-router-dom',
-    'react-router-redux',
-    'redux',
     'font-awesome-sass-loader'
   ],
 

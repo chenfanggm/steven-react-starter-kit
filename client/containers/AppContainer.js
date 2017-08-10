@@ -1,7 +1,5 @@
 import React from 'react'
-import { Provider } from 'react-redux'
-// import { Router } from 'react-router-dom'
-import { ConnectedRouter } from 'react-router-redux'
+import { BrowserRouter } from 'react-router-dom'
 
 
 class AppContainer extends React.Component {
@@ -11,14 +9,9 @@ class AppContainer extends React.Component {
   }
 
   render() {
-    const { store, history, routes } = this.props
+    const { routes } = this.props
 
-    return (
-      <Provider store={store}>
-        <ConnectedRouter history={history}
-                         children={routes} />
-      </Provider>
-    )
+    return (<BrowserRouter children={routes} />)
   }
 }
 

@@ -1,6 +1,6 @@
 # Steven's React Starter Kit
 This starter kit provide a solid foundation of starting a new **Reactjs** web application.
-It uses: **Reactjs**, **Redux**, **Expressjs**, and **Webpack**.
+It uses: **Reactjs**, **Expressjs**, and **Webpack**.
 
 # Install
 * Clone this repo, and navigate to the directory
@@ -20,7 +20,6 @@ npm run dev
 
 # Reference:
 * https://facebook.github.io/react/
-* http://redux.js.org
 * https://webpack.js.org/concepts/
 * https://github.com/davezuko/react-redux-starter-kit
 

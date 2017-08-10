@@ -1,7 +1,5 @@
 import React from 'react'
-import { connect } from 'react-redux'
 import classes from './MainMenu.scss'
-import { actions as authActions } from '../../redux/modules/userReducer'
 
 
 class MainMenu extends React.Component {
@@ -26,9 +24,4 @@ class MainMenu extends React.Component {
   }
 }
 
-const mapStateToProps = (state) => ({
-  isAuthenticated: state.user.isAuthenticated
-})
-
-export default connect(mapStateToProps,
-  Object.assign({}, authActions))(MainMenu)
+export default MainMenu
