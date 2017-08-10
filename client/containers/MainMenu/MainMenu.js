@@ -10,7 +10,6 @@ class MainMenu extends React.Component {
   }
 
   logoutHandler() {
-    this.props.logoutUser()
   }
 
   render() {
