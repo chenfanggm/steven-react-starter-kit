@@ -224,7 +224,7 @@ if (!__TEST__) {
   debug('Enable plugins for bundle split.')
   webpackConfig.plugins.push(
     new webpack.optimize.CommonsChunkPlugin({
-      names: ['vendor', 'normalize', 'manifest']
+      names: ['vendor', 'normalize']
     })
   )
 }
