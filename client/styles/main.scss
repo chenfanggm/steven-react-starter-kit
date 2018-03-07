@@ -6,7 +6,6 @@
   @import "~normalize.css/normalize";
   @import '~semantic-ui-css/semantic.css';
 
-
   // Some best-practice CSS that"s useful for most apps
   // Just remove them if they"re not what you want
   html {
@@ -35,36 +34,6 @@
     &.noScroll {
       overflow: hidden;
     }
-  }
-
-  a {
-    text-decoration: none;
-    color: $link-color-primary;
-    cursor: pointer;
-  }
-
-  h3 {
-    margin: 2rem 0 1rem 0;
-    font-size: 3rem;
-  }
-
-  p {
-    margin: 0;
-  }
-
-  blockquote {
-    position: relative;
-    margin: 1rem 0 3rem 0;
-    padding: 0 1rem;
-    border-left: 3px solid #cccccc;
-    font: 2rem/1.5 'Lato', sans-serif;
-    color: $text-color-third;
-  }
-
-  *,
-  *:before,
-  *:after {
-    box-sizing: inherit;
   }
 
   #root {

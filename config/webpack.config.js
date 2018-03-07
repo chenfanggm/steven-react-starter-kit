@@ -2,8 +2,11 @@ const argv = require('yargs').argv
 const webpack = require('webpack')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const ExtractTextPlugin = require('extract-text-webpack-plugin')
+const cssbyebye = require('css-byebye')
 const debug = require('debug')('app:config:webpack')
-const config = require('../config')
+const config = require('./index')
+const themeVars = require('../client/styles/theme')
+
 
 const paths = config.pathUtil
 const __DEV__ = config.compilerGlobals.__DEV__
@@ -23,7 +26,7 @@ const webpackConfig = {
   },
   output: {
     path: paths.dist(),
-    filename: __DEV__ ? `[name].bundle.js` : `[name].[${config.compilerHashType}].bundle.js`,
+    filename: __DEV__ ? '[name].bundle.js' : `[name].[${config.compilerHashType}].bundle.js`,
     publicPath: config.compilerPublicPath
   },
   resolve: {
@@ -31,7 +34,7 @@ const webpackConfig = {
       paths.client(),
       'node_modules'
     ],
-    extensions: ['*', '.js', '.jsx', '.json']
+    extensions: ['*', '.js', '.jsx', '.json', '.less']
     // alias: {}
   },
   devtool: config.compilerSourceMap,
@@ -68,7 +71,8 @@ webpackConfig.module.rules.push({
         }]
       ],
       plugins: [
-        ['lodash', { 'id': ['lodash', 'semantic-ui-react'] }],
+        ['lodash', { 'id': ['lodash'] }],
+        ['import', { 'libraryName': 'antd', 'libraryDirectory': 'es', 'style': true }],
         //'babel-plugin-syntax-dynamic-import',
         'babel-plugin-transform-class-properties',
         ['babel-plugin-transform-runtime', {
@@ -134,6 +138,22 @@ const cssLoader = {
   }
 }
 
+const postCssLoader = {
+  loader: 'postcss-loader',
+  options: {
+    ident: 'postcss',
+    sourceMap: !!config.compilerSourceMap,
+    plugins: (loader) => {
+      const plugins = []
+      plugins.push(cssbyebye({
+        rulesToRemove: ['html', 'body', '*'],
+        map: false
+      }))
+      return plugins
+    }
+  }
+}
+
 const sassLoader = {
   loader: 'sass-loader',
   options: {
@@ -141,6 +161,15 @@ const sassLoader = {
     includePaths: [
       paths.client('styles'),
     ]
+  }
+}
+
+const lessLoader = {
+  loader: 'less-loader',
+  options: {
+    sourceMap: !!config.compilerSourceMap,
+    javascriptEnabled: true,
+    modifyVars: themeVars
   }
 }
 
@@ -157,6 +186,20 @@ webpackConfig.module.rules.push({
     use: [
       cssLoader,
       sassLoader
+    ]
+  })
+})
+
+
+webpackConfig.module.rules.push({
+  test: /\.less$/,
+  exclude: [paths.base('../node_modules/antd/es/style/index.less')],
+  loader: extractStyles.extract({
+    fallback: 'style-loader',
+    use: [
+      cssLoader,
+      postCssLoader,
+      lessLoader
     ]
   })
 })
