@@ -1,3 +1,4 @@
+const path = require('path')
 const argv = require('yargs').argv
 const webpack = require('webpack')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
@@ -5,47 +6,49 @@ const ExtractTextPlugin = require('extract-text-webpack-plugin')
 const cssbyebye = require('css-byebye')
 const debug = require('debug')('app:config:webpack')
 const config = require('./index')
-const themeVars = require('../client/styles/theme')
+const themeVars = require('../src/styles/theme')
 
 
-const paths = config.pathUtil
-const __DEV__ = config.compilerGlobals.__DEV__
-const __PROD__ = config.compilerGlobals.__PROD__
-const __TEST__ = config.compilerGlobals.__TEST__
+const __DEV__ = config.globalVars.__DEV__
+const __PROD__ = config.globalVars.__PROD__
+const __TEST__ = config.globalVars.__TEST__
 
 debug('Init webpack config.')
-const mainEntry = [paths.client('main')]
+const mainEntry = [path.resolve(config.srcDir, './main')]
 if (__DEV__) {
-  mainEntry.push(`webpack-hot-middleware/client.js?path=${config.compilerPublicPath}__webpack_hmr&reload=true`)
+  mainEntry.push(`webpack-hot-middleware/client.js?path=${config.webpack.publicPath}__webpack_hmr&reload=true`)
 }
+
 const webpackConfig = {
+  mode: __DEV__ ? 'development' : 'production',
   entry: {
     main: mainEntry,
-    vendor: config.compilerVendors,
-    normalize: [paths.client('normalize')]
+    vendor: [
+      'react',
+      'react-router-dom',
+      'font-awesome-sass-loader'
+    ]
   },
   output: {
-    path: paths.dist(),
-    filename: __DEV__ ? '[name].bundle.js' : `[name].[${config.compilerHashType}].bundle.js`,
-    publicPath: config.compilerPublicPath
+    path: config.distDir,
+    filename: __DEV__ ? '[name].bundle.js' : `[name].[${__PROD__ ? 'chunkhash' : 'hash'}].bundle.js`,
+    publicPath: config.webpack.publicPath
   },
   resolve: {
     modules: [
-      paths.client(),
+      config.srcDir,
       'node_modules'
     ],
     extensions: ['*', '.js', '.jsx', '.json', '.less']
     // alias: {}
   },
-  devtool: config.compilerSourceMap,
+  devtool: config.webpack.sourceMap,
   externals: {},
   module: {
-    // noParse: /jquery/,
     rules: []
   },
   plugins: [
-    new webpack.DefinePlugin(config.compilerGlobals),
-    // new webpack.ProvidePlugin({})
+    new webpack.DefinePlugin(config.globalVars),
   ]
 }
 
@@ -73,14 +76,10 @@ webpackConfig.module.rules.push({
       plugins: [
         ['lodash', { 'id': ['lodash'] }],
         ['import', { 'libraryName': 'antd', 'libraryDirectory': 'es', 'style': true }],
-        //'babel-plugin-syntax-dynamic-import',
+        'babel-plugin-syntax-dynamic-import',
         'babel-plugin-transform-class-properties',
-        ['babel-plugin-transform-runtime', {
-          polyfill: false // only polyfill needed features in client/normalize.js
-        }],
-        ['babel-plugin-transform-object-rest-spread', {
-          useBuiltIns: true // polyfill Object.assign in client/normalize.js
-        }]
+        'babel-plugin-transform-runtime',
+        'babel-plugin-transform-object-rest-spread'
       ]
     }
   }]
@@ -100,7 +99,7 @@ webpackConfig.module.rules.push({
   ['otf', 'font/opentype'],
   ['ttf', 'application/octet-stream'],
   ['eot', 'application/vnd.ms-fontobject'],
-  ['svg', 'image/svg+xml'],
+  ['svg', 'image/svg+xml']
 ].forEach((font) => {
   const extension = font[0]
   const mimetype = font[1]
@@ -120,10 +119,10 @@ webpackConfig.module.rules.push({
 const cssLoader = {
   loader: 'css-loader',
   options: {
-    modules: config.compilerCssModules,
+    modules: false,
     importLoaders: 1,
     localIdentName: '[name]__[local]--[hash:base64:5]',
-    sourceMap: !!config.compilerSourceMap,
+    sourceMap: !!config.webpack.sourceMap,
     minimize: {
       preset: ['default', {
         autoprefixer: { browsers: ['last 2 versions'] },
@@ -132,7 +131,7 @@ const cssLoader = {
         mergeIdents: false,
         reduceIdents: false,
         safe: true,
-        sourcemap: !!config.compilerSourceMap
+        sourcemap: !!config.webpack.sourceMap
       }]
     }
   }
@@ -142,7 +141,7 @@ const postCssLoader = {
   loader: 'postcss-loader',
   options: {
     ident: 'postcss',
-    sourceMap: !!config.compilerSourceMap,
+    sourceMap: !!config.webpack.sourceMap,
     plugins: (loader) => {
       const plugins = []
       plugins.push(cssbyebye({
@@ -157,17 +156,15 @@ const postCssLoader = {
 const sassLoader = {
   loader: 'sass-loader',
   options: {
-    sourceMap: !!config.compilerSourceMap,
-    includePaths: [
-      paths.client('styles'),
-    ]
+    sourceMap: !!config.webpack.sourceMap,
+    includePaths: [path.resolve(config.srcDir, './styles')]
   }
 }
 
 const lessLoader = {
   loader: 'less-loader',
   options: {
-    sourceMap: !!config.compilerSourceMap,
+    sourceMap: !!config.webpack.sourceMap,
     javascriptEnabled: true,
     modifyVars: themeVars
   }
@@ -193,7 +190,6 @@ webpackConfig.module.rules.push({
 
 webpackConfig.module.rules.push({
   test: /\.less$/,
-  exclude: [paths.base('../node_modules/antd/es/style/index.less')],
   loader: extractStyles.extract({
     fallback: 'style-loader',
     use: [
@@ -216,8 +212,8 @@ webpackConfig.plugins.push(extractStyles)
 
 // HTML Template
 webpackConfig.plugins.push(new HtmlWebpackPlugin({
-  template: paths.client('index.html'),
-  favicon: paths.client('statics/favicon.ico'),
+  template: path.resolve(config.srcDir, './index.html'),
+  favicon: path.resolve(config.srcDir, './statics/favicon.ico'),
   hash: false,
   inject: 'body',
   minify: {
@@ -229,8 +225,7 @@ webpackConfig.plugins.push(new HtmlWebpackPlugin({
 if (__DEV__) {
   debug('Enable plugins for live development (HMR, NamedModulesPlugin).')
   webpackConfig.plugins.push(
-    new webpack.HotModuleReplacementPlugin(),
-    new webpack.NamedModulesPlugin()
+    new webpack.HotModuleReplacementPlugin()
   )
 }
 
@@ -258,16 +253,6 @@ if (__PROD__) {
         if_return: true,
         join_vars: true,
       }
-    })
-  )
-}
-
-// Bundle Splitting
-if (!__TEST__) {
-  debug('Enable plugins for bundle split.')
-  webpackConfig.plugins.push(
-    new webpack.optimize.CommonsChunkPlugin({
-      names: ['vendor', 'normalize']
     })
   )
 }

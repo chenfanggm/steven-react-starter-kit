@@ -24,8 +24,7 @@
   "globals": {
     "__DEV__": false,
     "__PROD__": false,
-    "__TEST__": false,
-    "process.env": false
+    "__TEST__": false
   },
   "parserOptions": {
     "ecmaVersion": 6,
@@ -74,7 +73,7 @@
     // Styles
     "quotes": [2, "single"],                    // specify whether double or single quotes should be used
     "jsx-quotes": [2, "prefer-single"],
-    "semi": [2, "never"],                       // require or disallow use of semicolons instead of ASI
+    "semi": [0, "always"],                       // require or disallow use of semicolons instead of ASI
     "max-len": [2, 250, 2],                     // specify the maximum length of a line in your program (off by default)
     "object-curly-spacing": [2, "always"],      // specify 2 curly spacing
     //"space-infix-ops": 0,                     // require spaces around operators

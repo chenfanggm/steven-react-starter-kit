@@ -24,7 +24,7 @@ const webpackCompiler = (webpackConfig) => {
       } else if (jsonStats.warnings.length > 0) {
         debug('Webpack compiler encountered warnings.')
         debug(jsonStats.warnings.join('\n'))
-        if (config.compilerFailOnWarning) {
+        if (config.webpack.failOnWarning) {
           throw new Error('Config set to fail on warning, exiting with compile warning.')
         }
       }

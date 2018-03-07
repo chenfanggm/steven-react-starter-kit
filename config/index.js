@@ -12,10 +12,9 @@ const config = {
   // Project Structure
   // ----------------------------------
   baseDir: path.resolve(__dirname, '..'),
-  clientDir: 'client',
-  distDir: 'dist',
-  staticDir: 'client/statics',
-  testDir: 'tests',
+  srcDir: path.resolve(__dirname, '../src'),
+  distDir: path.resolve(__dirname, '../dist'),
+  testDir: path.resolve(__dirname, '../tests'),
 
   // ----------------------------------
   // Server Configuration
@@ -40,32 +39,15 @@ const config = {
   // ----------------------------------
   // Webpack Configuration
   // ----------------------------------
-  compilerPublicPath: '/',
-  compilerHashType: 'hash',
-  compilerCssModules: false,
-  compilerSourceMap:  'source-map',
-  compilerFailOnWarning: false,
-  compilerQuiet: false,
-  compilerVendors: [
-    'react',
-    'react-router-dom',
-    'font-awesome-sass-loader'
-  ],
-
-  // ----------------------------------
-  // Test Configuration
-  // ----------------------------------
-  coverageReporters: [
-    { type : 'text-summary' },
-    { type : 'html', dir : 'coverage' }
-  ]
+  webpack: {
+    publicPath: '/',
+    sourceMap: 'source-map',
+    failOnWarning: false,
+  }
 }
 
 // NOTE: application global variables must also be added to .eslintrc
-config.compilerGlobals = {
-  'process.env': {
-    NODE_ENV: JSON.stringify(config.env)
-  },
+config.globalVars = {
   __DEV__: config.env === 'development',
   __PROD__: config.env === 'production',
   __TEST__: config.env === 'test'
@@ -82,20 +64,6 @@ if (overrides) {
   Object.assign(config, overrides(config))
 } else {
   debug('No environment overrides found, default config will be used.')
-}
-
-// ------------------------------------
-// Project Path Utilities
-// ------------------------------------
-function base() {
-  const args = [config.baseDir].concat([].slice.call(arguments))
-  return path.resolve.apply(null, args)
-}
-
-config.pathUtil = {
-  base: base,
-  client: base.bind(null, config.clientDir),
-  dist: base.bind(null, config.distDir)
 }
 
 module.exports = config

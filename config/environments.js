@@ -3,7 +3,10 @@ module.exports = {
   // Overrides when NODE_ENV === 'development'
   // --------------------------------------
   development: (config) => ({
-    compilerPublicPath: `http://${config.serverHost}:${config.serverPort}/`,
+    webpack: {
+      ...config.webpack,
+      publicPath: `http://${config.serverHost}:${config.serverPort}/`,
+    },
     proxy: {
       enabled: false,
       options: {
@@ -11,8 +14,8 @@ module.exports = {
         match: /^\/api\/.*/
       }
     },
-    compilerGlobals: {
-      ...config.compilerGlobals,
+    globalVars: {
+      ...config.globalVars,
       __API_URL__: `http://${config.serverHost}:${config.serverPort}/api/v1`,
     }
   }),
@@ -22,15 +25,6 @@ module.exports = {
   // --------------------------------------
   production: (config) => ({
     serverHost : 'your_host_domain.com',
-    compilerPublicPath: '/',
-    compilerFailOnWarning: false,
-    compilerHashType: 'chunkhash',
-    compilerSourceMap: 'source-map',
-    compiler_stats: {
-      chunks: true,
-      chunkModules: true,
-      colors: true
-    },
     proxy: {
       enabled: false,
       options: {
@@ -39,8 +33,8 @@ module.exports = {
       }
     },
     cache_control: { max_age: 2 * 60 * 60 * 1000 }, // 2 hours
-    compilerGlobals: {
-      ...config.compilerGlobals,
+    globalVars: {
+      ...config.globalVars,
       __API_URL__: 'http://your_host_domian.com/api/v1'
     }
   })
