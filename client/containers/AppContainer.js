@@ -5,8 +5,7 @@ import { BrowserRouter } from 'react-router-dom'
 
 class AppContainer extends React.Component {
   render() {
-    const { routes } = this.props
-
+    const { routes } = this.props;
     return (<BrowserRouter children={routes} />)
   }
 }

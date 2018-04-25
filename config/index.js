@@ -1,7 +1,7 @@
-const path = require('path')
-const debug = require('debug')('app:config')
+const path = require('path');
+const debug = require('debug')('app:config');
 
-debug('Init default application config.')
+debug('Init default application config.');
 // --------------------------------------
 // Default Configuration
 // --------------------------------------
@@ -12,9 +12,10 @@ const config = {
   // Project Structure
   // ----------------------------------
   baseDir: path.resolve(__dirname, '..'),
-  srcDir: path.resolve(__dirname, '../src'),
-  distDir: path.resolve(__dirname, '../dist'),
-  testDir: path.resolve(__dirname, '../tests'),
+  clientDir: 'client',
+  distDir: 'dist',
+  staticDir: 'client/statics',
+  testDir: 'tests',
 
   // ----------------------------------
   // Server Configuration
@@ -39,31 +40,62 @@ const config = {
   // ----------------------------------
   // Webpack Configuration
   // ----------------------------------
-  webpack: {
-    publicPath: '/',
-    sourceMap: 'source-map',
-    failOnWarning: false,
-  }
-}
+  compilerPublicPath: '/',
+  compilerHashType: 'hash',
+  compilerCssModules: false,
+  compilerSourceMap:  'source-map',
+  compilerFailOnWarning: false,
+  compilerQuiet: false,
+  compilerVendors: [
+    'react',
+    'react-router-dom',
+    'font-awesome-sass-loader'
+  ],
+
+  // ----------------------------------
+  // Test Configuration
+  // ----------------------------------
+  coverageReporters: [
+    { type : 'text-summary' },
+    { type : 'html', dir : 'coverage' }
+  ]
+};
 
 // NOTE: application global variables must also be added to .eslintrc
-config.globalVars = {
+config.compilerGlobals = {
+  'process.env': {
+    NODE_ENV: JSON.stringify(config.env)
+  },
   __DEV__: config.env === 'development',
   __PROD__: config.env === 'production',
   __TEST__: config.env === 'test'
-}
+};
 
 // ------------------------------------
 // Environment Overrides
 // ------------------------------------
-debug(`Looking up environment overrides for NODE_ENV "${config.env}".`)
-const environments = require('./environments')
-const overrides = environments[config.env]
+debug(`Looking up environment overrides for NODE_ENV "${config.env}".`);
+const environments = require('./environments');
+const overrides = environments[config.env];
 if (overrides) {
-  debug(`Found overrides, applying overrides for NODE_ENV ${config.env}`)
+  debug(`Found overrides, applying overrides for NODE_ENV ${config.env}`);
   Object.assign(config, overrides(config))
 } else {
   debug('No environment overrides found, default config will be used.')
 }
 
-module.exports = config
+// ------------------------------------
+// Project Path Utilities
+// ------------------------------------
+function base() {
+  const args = [config.baseDir].concat([].slice.call(arguments));
+  return path.resolve.apply(null, args)
+}
+
+config.pathUtil = {
+  base: base,
+  client: base.bind(null, config.clientDir),
+  dist: base.bind(null, config.distDir)
+};
+
+module.exports = config;

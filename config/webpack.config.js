@@ -1,56 +1,53 @@
-const path = require('path')
-const argv = require('yargs').argv
-const webpack = require('webpack')
-const HtmlWebpackPlugin = require('html-webpack-plugin')
-const ExtractTextPlugin = require('extract-text-webpack-plugin')
-const cssbyebye = require('css-byebye')
-const debug = require('debug')('app:config:webpack')
-const config = require('./index')
-const themeVars = require('../src/styles/theme')
+const argv = require('yargs').argv;
+const webpack = require('webpack');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const debug = require('debug')('app:config:webpack');
+const config = require('../config');
 
+const paths = config.pathUtil;
+const __DEV__ = config.compilerGlobals.__DEV__;
+const __PROD__ = config.compilerGlobals.__PROD__;
+const __TEST__ = config.compilerGlobals.__TEST__;
 
-const __DEV__ = config.globalVars.__DEV__
-const __PROD__ = config.globalVars.__PROD__
-const __TEST__ = config.globalVars.__TEST__
-
-debug('Init webpack config.')
-const mainEntry = [path.resolve(config.srcDir, './main')]
+debug('Init webpack config.');
+const mainEntry = [];
 if (__DEV__) {
-  mainEntry.push(`webpack-hot-middleware/client.js?path=${config.webpack.publicPath}__webpack_hmr&reload=true`)
+  mainEntry.push('react-hot-loader/patch');
+  mainEntry.push(`webpack-hot-middleware/client.js?path=${config.compilerPublicPath}__webpack_hmr&reload=true`)
 }
-
+mainEntry.push(paths.client('main'));
 const webpackConfig = {
   mode: __DEV__ ? 'development' : 'production',
+  devtool: config.compilerSourceMap,
   entry: {
     main: mainEntry,
-    vendor: [
-      'react',
-      'react-router-dom',
-      'font-awesome-sass-loader'
-    ]
+    vendor: config.compilerVendors
   },
   output: {
-    path: config.distDir,
-    filename: __DEV__ ? '[name].bundle.js' : `[name].[${__PROD__ ? 'chunkhash' : 'hash'}].bundle.js`,
-    publicPath: config.webpack.publicPath
+    path: paths.dist(),
+    filename: __DEV__ ? '[name].bundle.js' : `[name].[${config.compilerHashType}].bundle.js`,
+    publicPath: config.compilerPublicPath
   },
   resolve: {
     modules: [
-      config.srcDir,
+      paths.client(),
       'node_modules'
     ],
-    extensions: ['*', '.js', '.jsx', '.json', '.less']
+    extensions: ['*', '.js', '.jsx', '.json', '.scss']
     // alias: {}
   },
-  devtool: config.webpack.sourceMap,
   externals: {},
   module: {
+    // noParse: /jquery/,
     rules: []
   },
   plugins: [
-    new webpack.DefinePlugin(config.globalVars),
-  ]
-}
+    new webpack.DefinePlugin(config.compilerGlobals),
+    // new webpack.ProvidePlugin({})
+  ],
+  optimization: {}
+};
 
 // ------------------------------------
 // Module Rules
@@ -74,16 +71,19 @@ webpackConfig.module.rules.push({
         }]
       ],
       plugins: [
-        ['lodash', { 'id': ['lodash'] }],
-        ['import', { 'libraryName': 'antd', 'libraryDirectory': 'es', 'style': true }],
-        'babel-plugin-syntax-dynamic-import',
+        ['lodash', { 'id': ['lodash', 'semantic-ui-react'] }],
+        //'babel-plugin-syntax-dynamic-import',
         'babel-plugin-transform-class-properties',
-        'babel-plugin-transform-runtime',
-        'babel-plugin-transform-object-rest-spread'
+        ['babel-plugin-transform-runtime', {
+          polyfill: false // only polyfill needed features in client/normalize.js
+        }],
+        ['babel-plugin-transform-object-rest-spread', {
+          useBuiltIns: true // polyfill Object.assign in client/normalize.js
+        }]
       ]
     }
   }]
-})
+});
 
 // Images
 webpackConfig.module.rules.push({
@@ -99,10 +99,10 @@ webpackConfig.module.rules.push({
   ['otf', 'font/opentype'],
   ['ttf', 'application/octet-stream'],
   ['eot', 'application/vnd.ms-fontobject'],
-  ['svg', 'image/svg+xml']
+  ['svg', 'image/svg+xml'],
 ].forEach((font) => {
-  const extension = font[0]
-  const mimetype = font[1]
+  const extension = font[0];
+  const mimetype = font[1];
 
   webpackConfig.module.rules.push({
     test    : new RegExp(`\\.${extension}$`),
@@ -113,16 +113,16 @@ webpackConfig.module.rules.push({
       mimetype,
     },
   })
-})
+});
 
 // Styles
 const cssLoader = {
   loader: 'css-loader',
   options: {
-    modules: false,
+    modules: config.compilerCssModules,
     importLoaders: 1,
     localIdentName: '[name]__[local]--[hash:base64:5]',
-    sourceMap: !!config.webpack.sourceMap,
+    sourceMap: !!config.compilerSourceMap,
     minimize: {
       preset: ['default', {
         autoprefixer: { browsers: ['last 2 versions'] },
@@ -131,50 +131,27 @@ const cssLoader = {
         mergeIdents: false,
         reduceIdents: false,
         safe: true,
-        sourcemap: !!config.webpack.sourceMap
+        sourcemap: !!config.compilerSourceMap
       }]
     }
   }
-}
-
-const postCssLoader = {
-  loader: 'postcss-loader',
-  options: {
-    ident: 'postcss',
-    sourceMap: !!config.webpack.sourceMap,
-    plugins: (loader) => {
-      const plugins = []
-      plugins.push(cssbyebye({
-        rulesToRemove: ['html', 'body', '*'],
-        map: false
-      }))
-      return plugins
-    }
-  }
-}
+};
 
 const sassLoader = {
   loader: 'sass-loader',
   options: {
-    sourceMap: !!config.webpack.sourceMap,
-    includePaths: [path.resolve(config.srcDir, './styles')]
+    sourceMap: !!config.compilerSourceMap,
+    includePaths: [
+      paths.client('styles'),
+    ]
   }
-}
-
-const lessLoader = {
-  loader: 'less-loader',
-  options: {
-    sourceMap: !!config.webpack.sourceMap,
-    javascriptEnabled: true,
-    modifyVars: themeVars
-  }
-}
+};
 
 const extractStyles = new ExtractTextPlugin({
   filename: '[name].[contenthash].css',
   allChunks: true,
   disable: __DEV__
-})
+});
 
 webpackConfig.module.rules.push({
   test: /\.(sass|scss)$/,
@@ -185,20 +162,7 @@ webpackConfig.module.rules.push({
       sassLoader
     ]
   })
-})
-
-
-webpackConfig.module.rules.push({
-  test: /\.less$/,
-  loader: extractStyles.extract({
-    fallback: 'style-loader',
-    use: [
-      cssLoader,
-      postCssLoader,
-      lessLoader
-    ]
-  })
-})
+});
 
 webpackConfig.module.rules.push({
   test: /\.css$/,
@@ -206,38 +170,38 @@ webpackConfig.module.rules.push({
     fallback: 'style-loader',
     use: [cssLoader]
   })
-})
+});
 
-webpackConfig.plugins.push(extractStyles)
+webpackConfig.plugins.push(extractStyles);
 
 // HTML Template
 webpackConfig.plugins.push(new HtmlWebpackPlugin({
-  template: path.resolve(config.srcDir, './index.html'),
-  favicon: path.resolve(config.srcDir, './statics/favicon.ico'),
+  template: paths.client('index.html'),
+  favicon: paths.client('statics/favicon.ico'),
   hash: false,
   inject: 'body',
   minify: {
     collapseWhitespace: true
   }
-}))
+}));
 
 // Development Tools
 if (__DEV__) {
-  debug('Enable plugins for live development (HMR, NamedModulesPlugin).')
+  debug('Enable plugins for live development (HMR, NamedModulesPlugin).');
   webpackConfig.plugins.push(
-    new webpack.HotModuleReplacementPlugin()
-  )
+    new webpack.HotModuleReplacementPlugin(),
+  );
+  webpackConfig.optimization['namedModules'] = true
 }
 
 // Production Optimizations
 if (__PROD__) {
-  debug('Enable plugins for production optimization.')
+  debug('Enable plugins for production optimization.');
   webpackConfig.plugins.push(
     new webpack.LoaderOptionsPlugin({
       minimize: true,
       debug: false,
     }),
-    new webpack.optimize.ModuleConcatenationPlugin(),
     new webpack.optimize.UglifyJsPlugin({
       sourceMap: !!config.devtool,
       comments: false,
@@ -254,7 +218,18 @@ if (__PROD__) {
         join_vars: true,
       }
     })
-  )
+  );
+  webpackConfig.optimization['noEmitOnErrors'] = true;
+  webpackConfig.optimization['concatenateModules'] = true;
+}
+
+// Bundle Splitting
+if (!__TEST__) {
+  debug('Enable plugins for bundle split.');
+  webpackConfig.optimization['splitChunks'] = {
+    name: 'vendor',
+    minChunks: 2
+  };
 }
 
 /* Ensure that the compiler exits on errors during testing so that
@@ -271,4 +246,4 @@ if (__TEST__ && !argv.watch) {
   })
 }
 
-module.exports = webpackConfig
+module.exports = webpackConfig;
